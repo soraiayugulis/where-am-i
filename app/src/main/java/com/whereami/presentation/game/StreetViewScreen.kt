@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,32 +25,39 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.gms.maps.StreetViewPanoramaOptions
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.StreetViewPanoramaLocation
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
+import com.whereami.presentation.error.ErrorScreen
 import com.whereami.presentation.game.components.GameTimerBar
+
+private const val PANORAMA_SEARCH_RADIUS_METERS = 5_000
 
 @Composable
 fun StreetViewScreen(
     viewModel: StreetViewViewModel = hiltViewModel(),
     onGuess: () -> Unit = {},
-    onFinished: () -> Unit = {}
+    onFinished: () -> Unit = {},
+    onHome: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
+    val hasError by viewModel.hasError.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.startGame(System.currentTimeMillis().toInt())
-    }
-
-    LaunchedEffect(state) {
-        if (state is GameSessionState.Finished) {
-            onFinished()
-        }
+    if (hasError) {
+        ErrorScreen(
+            message = "Could not load a Street View location. Please try again.",
+            onHome = onHome
+        )
+        return
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (val current = state) {
             is GameSessionState.Playing -> {
-                StreetViewPanorama(target = current.target)
+                StreetViewPanorama(
+                    target = current.target,
+                    onNoCoverage = viewModel::onNoCoverage
+                )
                 GameTimerBar(
                     remainingSeconds = current.remainingSeconds,
                     isWarning = current.isWarning,
@@ -64,20 +72,26 @@ fun StreetViewScreen(
                     Text("Guess")
                 }
             }
-            else -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            is GameSessionState.Finished -> LaunchedEffect(Unit) { onFinished() }
+            GameSessionState.Idle -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
 
 @Composable
-private fun StreetViewPanorama(target: Location) {
+private fun StreetViewPanorama(
+    target: Location,
+    onNoCoverage: () -> Unit
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val position = LatLng(target.lat, target.lng)
+    val currentOnNoCoverage by rememberUpdatedState(onNoCoverage)
 
     val panoramaView = remember {
         val options = StreetViewPanoramaOptions()
-            .position(position)
             .userNavigationEnabled(true)
             .panningGesturesEnabled(true)
             .zoomGesturesEnabled(true)
@@ -86,6 +100,15 @@ private fun StreetViewPanorama(target: Location) {
             onCreate(null)
             onStart()
             onResume()
+        }
+    }
+
+    LaunchedEffect(position) {
+        panoramaView.getStreetViewPanoramaAsync { panorama ->
+            panorama.setOnStreetViewPanoramaChangeListener { location: StreetViewPanoramaLocation? ->
+                if (location?.position == null) currentOnNoCoverage()
+            }
+            panorama.setPosition(position, PANORAMA_SEARCH_RADIUS_METERS)
         }
     }
 

@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -111,42 +112,43 @@ private fun ResultMap(
         }
     }
 
+    LaunchedEffect(target, guess) {
+        mapView.getMapAsync { map: GoogleMap ->
+            map.clear()
+            val targetLatLng = LatLng(target.lat, target.lng)
+            map.addMarker(
+                MarkerOptions()
+                    .position(targetLatLng)
+                    .title("Target")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+            )
+            if (guess == null) {
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(targetLatLng, 5f))
+                return@getMapAsync
+            }
+            val guessLatLng = LatLng(guess.lat, guess.lng)
+            map.addMarker(
+                MarkerOptions()
+                    .position(guessLatLng)
+                    .title("Your guess")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            )
+            map.addPolyline(
+                PolylineOptions()
+                    .add(targetLatLng, guessLatLng)
+                    .color(android.graphics.Color.RED)
+                    .width(6f)
+            )
+            val bounds = LatLngBounds.builder()
+                .include(targetLatLng)
+                .include(guessLatLng)
+                .build()
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+        }
+    }
+
     AndroidView(
         factory = { mapView },
-        update = { view ->
-            view.getMapAsync { map: GoogleMap ->
-                map.clear()
-                val targetLatLng = LatLng(target.lat, target.lng)
-                map.addMarker(
-                    MarkerOptions()
-                        .position(targetLatLng)
-                        .title("Target")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                )
-                if (guess == null) {
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(targetLatLng, 5f))
-                    return@getMapAsync
-                }
-                val guessLatLng = LatLng(guess.lat, guess.lng)
-                map.addMarker(
-                    MarkerOptions()
-                        .position(guessLatLng)
-                        .title("Your guess")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                )
-                map.addPolyline(
-                    PolylineOptions()
-                        .add(targetLatLng, guessLatLng)
-                        .color(Color.Red.hashCode())
-                        .width(4f)
-                )
-                val bounds = LatLngBounds.builder()
-                    .include(targetLatLng)
-                    .include(guessLatLng)
-                    .build()
-                map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
-            }
-        },
         modifier = modifier
     )
 

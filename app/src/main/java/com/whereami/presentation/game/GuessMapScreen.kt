@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -44,7 +45,6 @@ fun GuessMapScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         MapView(
-            initial = guess,
             onMapClick = { viewModel.selectGuess(it) },
             modifier = Modifier.weight(1f)
         )
@@ -58,12 +58,12 @@ fun GuessMapScreen(
 
 @Composable
 private fun MapView(
-    initial: Location?,
     onMapClick: (Location) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val currentOnMapClick by rememberUpdatedState(onMapClick)
     val mapView = remember {
         MapView(context).apply {
             onCreate(Bundle())
@@ -72,24 +72,24 @@ private fun MapView(
         }
     }
 
+    LaunchedEffect(Unit) {
+        mapView.getMapAsync { googleMap: GoogleMap ->
+            googleMap.uiSettings.isZoomControlsEnabled = true
+            googleMap.uiSettings.isCompassEnabled = true
+            googleMap.uiSettings.isScrollGesturesEnabled = true
+            googleMap.uiSettings.isZoomGesturesEnabled = true
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 1f))
+
+            googleMap.setOnMapClickListener { latLng ->
+                googleMap.clear()
+                googleMap.addMarker(MarkerOptions().position(latLng))
+                currentOnMapClick(Location(latLng.latitude, latLng.longitude))
+            }
+        }
+    }
+
     AndroidView(
         factory = { mapView },
-        update = { _ ->
-            mapView.getMapAsync { googleMap: GoogleMap ->
-                googleMap.uiSettings.isZoomControlsEnabled = true
-                googleMap.uiSettings.isCompassEnabled = true
-
-                val start = initial?.let { LatLng(it.lat, it.lng) } ?: LatLng(0.0, 0.0)
-                val zoom = if (initial != null) 4f else 1f
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, zoom))
-
-                googleMap.setOnMapClickListener { latLng ->
-                    googleMap.clear()
-                    googleMap.addMarker(MarkerOptions().position(latLng))
-                    onMapClick(Location(latLng.latitude, latLng.longitude))
-                }
-            }
-        },
         modifier = modifier
     )
 

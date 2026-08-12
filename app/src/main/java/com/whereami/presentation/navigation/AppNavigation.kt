@@ -36,7 +36,8 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.PLAY) {
             StreetViewScreen(
                 onGuess = { navController.navigate(Routes.GUESS) },
-                onFinished = { navController.navigateToResult() }
+                onFinished = { navController.navigateToResult() },
+                onHome = { navController.navigateToHome() }
             )
         }
         composable(Routes.GUESS) {

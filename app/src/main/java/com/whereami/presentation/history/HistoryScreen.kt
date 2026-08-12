@@ -55,7 +55,6 @@ private fun DayHeader(dayStartMs: Long) {
 
 @Composable
 private fun MatchHistoryItem(match: MatchResult) {
-    val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(match.datePlayed))
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,7 +63,6 @@ private fun MatchHistoryItem(match: MatchResult) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Status: ${match.status}")
             Text("Score: ${match.score}")
-            Text("Time: $time")
         }
     }
 }
