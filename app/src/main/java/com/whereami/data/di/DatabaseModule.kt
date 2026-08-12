@@ -2,6 +2,7 @@ package com.whereami.data.di
 
 import android.content.Context
 import androidx.room.Room
+import com.whereami.data.local.MatchDao
 import com.whereami.data.local.MatchDatabase
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,7 @@ object DatabaseModule {
     fun provideMatchDatabase(@ApplicationContext context: Context): MatchDatabase {
         return Room.databaseBuilder(context, MatchDatabase::class.java, "matches.db").build()
     }
+
+    @Provides
+    fun provideMatchDao(database: MatchDatabase): MatchDao = database.matchDao()
 }
