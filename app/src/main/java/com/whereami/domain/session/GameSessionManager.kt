@@ -1,0 +1,88 @@
+package com.whereami.domain.session
+
+import com.whereami.core.time.Clock
+import com.whereami.domain.model.Location
+import com.whereami.domain.model.MatchResult
+import com.whereami.domain.model.Status
+import com.whereami.domain.timer.GameTimer
+import com.whereami.domain.usecase.GetRandomLocationUseCase
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+private const val GAME_DURATION_MS = 150_000L
+
+class GameSessionManager @Inject constructor(
+    private val clock: Clock,
+    private val gameTimer: GameTimer,
+    private val getRandomLocation: GetRandomLocationUseCase
+) {
+    private val _state = MutableStateFlow<GameSessionState>(GameSessionState.Idle)
+    val state: StateFlow<GameSessionState> = _state
+
+    private var startTime: Long = 0L
+    private var target: Location? = null
+    private var job: Job? = null
+
+    fun start(locationSeed: Int, scope: CoroutineScope) {
+        val target = getRandomLocation(locationSeed).getOrThrow()
+        this.target = target
+        startTime = clock.now()
+        _state.value = GameSessionState.Playing(target, 150, false)
+        gameTimer.start(scope)
+        job?.cancel()
+        job = scope.launch {
+            gameTimer.remainingTime.collect { remaining ->
+                if (_state.value is GameSessionState.Playing) {
+                    _state.value = GameSessionState.Playing(
+                        target,
+                        remaining,
+                        gameTimer.isWarning.value
+                    )
+                    if (remaining == 0) {
+                        expire()
+                    }
+                }
+            }
+        }
+    }
+
+    fun submitGuess(guess: Location) {
+        val target = this.target ?: return
+        if (_state.value is GameSessionState.Finished) return
+        stop()
+        val elapsed = clock.now() - startTime
+        val match = MatchResult(
+            datePlayed = clock.now(),
+            target = target,
+            guess = guess,
+            timeTakenMs = elapsed,
+            score = 0,
+            status = Status.COMPLETED
+        )
+        _state.value = GameSessionState.Finished(match)
+    }
+
+    fun expire() {
+        val target = this.target ?: return
+        if (_state.value is GameSessionState.Finished) return
+        stop()
+        val match = MatchResult(
+            datePlayed = clock.now(),
+            target = target,
+            guess = null,
+            timeTakenMs = GAME_DURATION_MS,
+            score = 0,
+            status = Status.INCOMPLETE
+        )
+        _state.value = GameSessionState.Finished(match)
+    }
+
+    fun stop() {
+        gameTimer.stop()
+        job?.cancel()
+    }
+}
