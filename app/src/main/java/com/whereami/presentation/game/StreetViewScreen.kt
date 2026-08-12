@@ -1,10 +1,10 @@
 package com.whereami.presentation.game
 
-import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,71 +21,86 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback
-import com.google.android.gms.maps.StreetViewPanorama
+import com.google.android.gms.maps.StreetViewPanoramaOptions
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.android.gms.maps.model.LatLng
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
+import com.whereami.presentation.game.components.GameTimerBar
 
 @Composable
 fun StreetViewScreen(
     viewModel: StreetViewViewModel = hiltViewModel(),
-    onGuess: () -> Unit = {}
+    onGuess: () -> Unit = {},
+    onFinished: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
-    val playing = state as? GameSessionState.Playing
 
     LaunchedEffect(Unit) {
-        viewModel.startGame(1)
+        viewModel.startGame(System.currentTimeMillis().toInt())
     }
 
-    if (playing != null) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            StreetViewPanoramaView(
-                target = playing.target
-            )
-            Button(
-                onClick = onGuess,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Text("Guess")
+    LaunchedEffect(state) {
+        if (state is GameSessionState.Finished) {
+            onFinished()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (val current = state) {
+            is GameSessionState.Playing -> {
+                StreetViewPanorama(target = current.target)
+                GameTimerBar(
+                    remainingSeconds = current.remainingSeconds,
+                    isWarning = current.isWarning,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+                Button(
+                    onClick = onGuess,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                ) {
+                    Text("Guess")
+                }
             }
+            else -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
 }
 
 @Composable
-private fun StreetViewPanoramaView(
-    target: Location
-) {
+private fun StreetViewPanorama(target: Location) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val panoramaView = remember { StreetViewPanoramaView(context) }
+    val position = LatLng(target.lat, target.lng)
+
+    val panoramaView = remember {
+        val options = StreetViewPanoramaOptions()
+            .position(position)
+            .userNavigationEnabled(true)
+            .panningGesturesEnabled(true)
+            .zoomGesturesEnabled(true)
+            .streetNamesEnabled(false)
+        StreetViewPanoramaView(context, options).apply {
+            onCreate(null)
+            onStart()
+            onResume()
+        }
+    }
 
     AndroidView(
-        factory = {
-            panoramaView.apply { onCreate(Bundle()) }
-        },
-        update = { _ ->
-            panoramaView.getStreetViewPanoramaAsync(
-                OnStreetViewPanoramaReadyCallback { panorama: StreetViewPanorama ->
-                    panorama.setPosition(LatLng(target.lat, target.lng))
-                    panorama.setUserNavigationEnabled(true)
-                    panorama.setPanningGesturesEnabled(true)
-                    panorama.setZoomGesturesEnabled(true)
-                }
-            )
-        }
+        factory = { panoramaView },
+        modifier = Modifier.fillMaxSize()
     )
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
+                Lifecycle.Event.ON_START -> panoramaView.onStart()
                 Lifecycle.Event.ON_RESUME -> panoramaView.onResume()
                 Lifecycle.Event.ON_PAUSE -> panoramaView.onPause()
+                Lifecycle.Event.ON_STOP -> panoramaView.onStop()
                 else -> Unit
             }
         }
@@ -93,6 +108,7 @@ private fun StreetViewPanoramaView(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             panoramaView.onPause()
+            panoramaView.onStop()
             panoramaView.onDestroy()
         }
     }
