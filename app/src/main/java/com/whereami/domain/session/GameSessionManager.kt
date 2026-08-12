@@ -9,6 +9,7 @@ import com.whereami.domain.timer.GameTimer
 import com.whereami.domain.usecase.CalculateScoreUseCase
 import com.whereami.domain.usecase.GetRandomLocationUseCase
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 
 private const val GAME_DURATION_MS = 150_000L
 
+@Singleton
 class GameSessionManager @Inject constructor(
     private val clock: Clock,
     private val gameTimer: GameTimer,
