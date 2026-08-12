@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
+import com.whereami.presentation.game.components.SubmitButton
 
 @Composable
 fun GuessMapScreen(
@@ -51,15 +50,11 @@ fun GuessMapScreen(
             onMapClick = { viewModel.selectGuess(it) },
             modifier = Modifier.weight(1f)
         )
-        Button(
-            onClick = { viewModel.confirmGuess() },
+        SubmitButton(
             enabled = guess != null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text("Submit")
-        }
+            onClick = { viewModel.confirmGuess() },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
