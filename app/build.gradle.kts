@@ -5,6 +5,10 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.51.1"
 }
 
+val mapsApiKey = rootProject.file("local.properties").takeIf { it.exists() }?.useLines { lines ->
+    lines.find { it.startsWith("MAPS_API_KEY=") }?.removePrefix("MAPS_API_KEY=")
+} ?: "YOUR_API_KEY"
+
 android {
     namespace = "com.whereami"
     compileSdk = 34
@@ -17,6 +21,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
