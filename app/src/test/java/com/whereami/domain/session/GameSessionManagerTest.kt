@@ -14,6 +14,8 @@ import com.whereami.domain.usecase.CalculateCountryBonusUseCase
 import com.whereami.domain.usecase.CalculateDistanceScoreUseCase
 import com.whereami.domain.usecase.CalculateScoreUseCase
 import com.whereami.domain.usecase.GetRandomLocationUseCase
+import com.whereami.domain.usecase.SaveMatchUseCase
+import com.whereami.domain.repository.MatchRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -26,7 +28,7 @@ class GameSessionManagerTest {
     @Test
     fun `expired match without guess is saved as INCOMPLETE with score 0`() = runTest {
         val clock = FakeClock()
-        val (manager, _) = createManager(clock)
+        val (manager, _, saved) = createManager(clock)
         manager.start(1, this)
 
         try {
@@ -38,6 +40,8 @@ class GameSessionManagerTest {
             assertEquals(0, finished.matchResult.score)
             assertNull(finished.matchResult.guess)
             assertEquals(150_000, finished.matchResult.timeTakenMs)
+            assertEquals(1, saved.matches.size)
+            assertEquals(Status.INCOMPLETE, saved.matches[0].status)
         } finally {
             manager.stop()
         }
@@ -46,7 +50,7 @@ class GameSessionManagerTest {
     @Test
     fun `guess before expiration is saved as COMPLETED`() = runTest {
         val clock = FakeClock()
-        val (manager, _) = createManager(clock)
+        val (manager, _, saved) = createManager(clock)
         manager.start(1, this)
 
         try {
@@ -60,6 +64,8 @@ class GameSessionManagerTest {
             assertEquals(30_000, finished.matchResult.timeTakenMs)
             assertTrue(finished.matchResult.score > 0)
             assertTrue(finished.matchResult.score <= 5000)
+            assertEquals(1, saved.matches.size)
+            assertEquals(Status.COMPLETED, saved.matches[0].status)
         } finally {
             manager.stop()
         }
@@ -70,7 +76,7 @@ class GameSessionManagerTest {
         val clock = FakeClock()
         val target = Location(1.0, 1.0)
         val guess = Location(1.01, 1.01)
-        val (manager, resolver) = createManager(clock, target)
+        val (manager, resolver, _) = createManager(clock, target)
         manager.start(1, this)
 
         try {
@@ -88,7 +94,7 @@ class GameSessionManagerTest {
     private fun createManager(
         clock: FakeClock,
         targetOverride: Location = Location(1.0, 1.0)
-    ): Pair<GameSessionManager, FakeCountryResolver> {
+    ): Triple<GameSessionManager, FakeCountryResolver, FakeMatchRepository> {
         val seed = LocationSeed(targetOverride.lat, targetOverride.lng, "Test", "TT")
         val useCase = GetRandomLocationUseCase(
             FakeSeedRepository(listOf(seed)),
@@ -100,9 +106,11 @@ class GameSessionManagerTest {
             CalculateDistanceScoreUseCase(),
             CalculateCountryBonusUseCase()
         )
+        val matchRepository = FakeMatchRepository()
+        val saveMatch = SaveMatchUseCase(matchRepository)
         val gameTimer = GameTimer(clock)
-        val manager = GameSessionManager(clock, gameTimer, useCase, resolver, score)
-        return manager to resolver
+        val manager = GameSessionManager(clock, gameTimer, useCase, resolver, score, saveMatch)
+        return Triple(manager, resolver, matchRepository)
     }
 
     private class FakeSeedRepository(private val seeds: List<LocationSeed>) : SeedRepository {
@@ -121,5 +129,15 @@ class GameSessionManagerTest {
         }
 
         override suspend fun resolve(location: Location): Country? = countries[location]
+    }
+
+    private class FakeMatchRepository : MatchRepository {
+        val matches = mutableListOf<com.whereami.domain.model.MatchResult>()
+
+        override suspend fun save(match: com.whereami.domain.model.MatchResult) {
+            matches.add(match)
+        }
+
+        override suspend fun getAll(): List<com.whereami.domain.model.MatchResult> = matches
     }
 }
