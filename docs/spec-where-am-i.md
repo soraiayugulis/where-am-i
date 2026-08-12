@@ -197,6 +197,7 @@ system must honor.
 - **Input:** a guess is submitted before the timer reaches `0`.
 - **Pre-condition:** valid target coordinates and guess coordinates inside a continent.
 - **Output:**
+  - screen shows maps with target and guess markers with a line connecting them
   - `score` is calculated by Rule 2 and Rule 3.
   - `status = COMPLETED`.
   - `time_taken_ms` equals the number of milliseconds between game start and
