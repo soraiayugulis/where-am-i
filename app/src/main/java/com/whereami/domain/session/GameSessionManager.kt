@@ -4,7 +4,9 @@ import com.whereami.core.time.Clock
 import com.whereami.domain.model.Location
 import com.whereami.domain.model.MatchResult
 import com.whereami.domain.model.Status
+import com.whereami.domain.repository.CountryResolver
 import com.whereami.domain.timer.GameTimer
+import com.whereami.domain.usecase.CalculateScoreUseCase
 import com.whereami.domain.usecase.GetRandomLocationUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +20,9 @@ private const val GAME_DURATION_MS = 150_000L
 class GameSessionManager @Inject constructor(
     private val clock: Clock,
     private val gameTimer: GameTimer,
-    private val getRandomLocation: GetRandomLocationUseCase
+    private val getRandomLocation: GetRandomLocationUseCase,
+    private val countryResolver: CountryResolver,
+    private val calculateScore: CalculateScoreUseCase
 ) {
     private val _state = MutableStateFlow<GameSessionState>(GameSessionState.Idle)
     val state: StateFlow<GameSessionState> = _state
@@ -50,17 +54,20 @@ class GameSessionManager @Inject constructor(
         }
     }
 
-    fun submitGuess(guess: Location) {
+    suspend fun submitGuess(guess: Location) {
         val target = this.target ?: return
         if (_state.value is GameSessionState.Finished) return
         stop()
         val elapsed = clock.now() - startTime
+        val targetCountry = countryResolver.resolve(target)
+        val guessCountry = countryResolver.resolve(guess)
+        val score = calculateScore(target, guess, targetCountry, guessCountry)
         val match = MatchResult(
             datePlayed = clock.now(),
             target = target,
             guess = guess,
             timeTakenMs = elapsed,
-            score = 0,
+            score = score,
             status = Status.COMPLETED
         )
         _state.value = GameSessionState.Finished(match)
