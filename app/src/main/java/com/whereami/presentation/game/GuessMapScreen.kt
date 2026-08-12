@@ -35,8 +35,6 @@ fun GuessMapScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val guess by viewModel.guess.collectAsState()
-    val playing = state as? GameSessionState.Playing
-    val initial = guess ?: playing?.target
 
     LaunchedEffect(state) {
         if (state is GameSessionState.Finished) {
@@ -46,7 +44,7 @@ fun GuessMapScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         MapView(
-            initial = initial,
+            initial = guess,
             onMapClick = { viewModel.selectGuess(it) },
             modifier = Modifier.weight(1f)
         )
@@ -66,21 +64,24 @@ private fun MapView(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val mapView = remember { MapView(context) }
-    val initialLatLng = remember(initial) { initial?.let { LatLng(it.lat, it.lng) } }
+    val mapView = remember {
+        MapView(context).apply {
+            onCreate(Bundle())
+            onStart()
+            onResume()
+        }
+    }
 
     AndroidView(
-        factory = {
-            mapView.apply { onCreate(Bundle()) }
-        },
+        factory = { mapView },
         update = { _ ->
             mapView.getMapAsync { googleMap: GoogleMap ->
                 googleMap.uiSettings.isZoomControlsEnabled = true
                 googleMap.uiSettings.isCompassEnabled = true
 
-                if (initialLatLng != null) {
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, 2f))
-                }
+                val start = initial?.let { LatLng(it.lat, it.lng) } ?: LatLng(0.0, 0.0)
+                val zoom = if (initial != null) 4f else 1f
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, zoom))
 
                 googleMap.setOnMapClickListener { latLng ->
                     googleMap.clear()
@@ -95,8 +96,10 @@ private fun MapView(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
+                Lifecycle.Event.ON_START -> mapView.onStart()
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
                 Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
                 else -> Unit
             }
         }
@@ -104,6 +107,7 @@ private fun MapView(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             mapView.onPause()
+            mapView.onStop()
             mapView.onDestroy()
         }
     }
