@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.whereami.domain.model.MatchResult
-import com.whereami.domain.model.Status
 import java.text.DateFormat
 import java.util.Date
 
@@ -25,31 +25,46 @@ import java.util.Date
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
-    val matches by viewModel.matches.collectAsState()
+    val groups by viewModel.groups.collectAsState()
 
-    if (matches.isEmpty()) {
+    if (groups.isEmpty()) {
         EmptyHistory()
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(matches, key = { it.id }) { match ->
-                MatchHistoryItem(match)
+            groups.forEach { group ->
+                item(key = "day-${group.dayStartMs}") {
+                    DayHeader(group.dayStartMs)
+                }
+                items(group.matches, key = { it.id }) { match ->
+                    MatchHistoryItem(match)
+                }
             }
         }
     }
 }
 
 @Composable
+private fun DayHeader(dayStartMs: Long) {
+    val day = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(dayStartMs))
+    Text(
+        text = day,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
 private fun MatchHistoryItem(match: MatchResult) {
-    val date = DateFormat.getDateTimeInstance().format(Date(match.datePlayed))
+    val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(match.datePlayed))
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Status: ${match.status}")
             Text("Score: ${match.score}")
-            Text("Date: $date")
+            Text("Time: $time")
         }
     }
 }
