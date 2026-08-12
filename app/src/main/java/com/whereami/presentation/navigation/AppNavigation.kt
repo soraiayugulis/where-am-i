@@ -10,11 +10,13 @@ import com.whereami.presentation.game.GuessMapScreen
 import com.whereami.presentation.game.StreetViewScreen
 import com.whereami.presentation.history.HistoryScreen
 import com.whereami.presentation.home.HomeScreen
+import com.whereami.presentation.result.ResultScreen
 
 object Routes {
     const val HOME = "home"
     const val PLAY = "play"
     const val GUESS = "guess"
+    const val RESULT = "result"
     const val HISTORY = "history"
     const val ERROR = "error"
 }
@@ -32,16 +34,35 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             )
         }
         composable(Routes.PLAY) {
-            StreetViewScreen(onGuess = { navController.navigate(Routes.GUESS) })
+            StreetViewScreen(
+                onGuess = { navController.navigate(Routes.GUESS) },
+                onFinished = { navController.navigateToResult() },
+                onHome = { navController.navigateToHome() }
+            )
         }
         composable(Routes.GUESS) {
-            GuessMapScreen(onSubmit = { navController.popBackStack(Routes.HOME, false) })
+            GuessMapScreen(onSubmit = { navController.navigateToResult() })
+        }
+        composable(Routes.RESULT) {
+            ResultScreen(onHome = { navController.navigateToHome() })
         }
         composable(Routes.HISTORY) {
             HistoryScreen()
         }
         composable(Routes.ERROR) {
-            ErrorScreen(onHome = { navController.popBackStack(Routes.HOME, false) })
+            ErrorScreen(onHome = { navController.navigateToHome() })
         }
+    }
+}
+
+private fun NavHostController.navigateToResult() {
+    navigate(Routes.RESULT) {
+        popUpTo(Routes.HOME) { inclusive = false }
+    }
+}
+
+private fun NavHostController.navigateToHome() {
+    navigate(Routes.HOME) {
+        popUpTo(Routes.HOME) { inclusive = true }
     }
 }
