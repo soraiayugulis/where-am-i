@@ -8,6 +8,7 @@ import com.whereami.domain.repository.CountryResolver
 import com.whereami.domain.timer.GameTimer
 import com.whereami.domain.usecase.CalculateScoreUseCase
 import com.whereami.domain.usecase.GetRandomLocationUseCase
+import com.whereami.domain.usecase.SaveMatchUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +25,8 @@ class GameSessionManager @Inject constructor(
     private val gameTimer: GameTimer,
     private val getRandomLocation: GetRandomLocationUseCase,
     private val countryResolver: CountryResolver,
-    private val calculateScore: CalculateScoreUseCase
+    private val calculateScore: CalculateScoreUseCase,
+    private val saveMatch: SaveMatchUseCase
 ) {
     private val _state = MutableStateFlow<GameSessionState>(GameSessionState.Idle)
     val state: StateFlow<GameSessionState> = _state
@@ -72,10 +74,11 @@ class GameSessionManager @Inject constructor(
             score = score,
             status = Status.COMPLETED
         )
+        saveMatch(match)
         _state.value = GameSessionState.Finished(match)
     }
 
-    fun expire() {
+    suspend fun expire() {
         val target = this.target ?: return
         if (_state.value is GameSessionState.Finished) return
         stop()
@@ -87,6 +90,7 @@ class GameSessionManager @Inject constructor(
             score = 0,
             status = Status.INCOMPLETE
         )
+        saveMatch(match)
         _state.value = GameSessionState.Finished(match)
     }
 
