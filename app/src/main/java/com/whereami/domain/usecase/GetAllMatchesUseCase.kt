@@ -4,7 +4,7 @@ import com.whereami.domain.model.MatchResult
 import com.whereami.domain.repository.MatchRepository
 import javax.inject.Inject
 
-class GetMatchHistoryUseCase @Inject constructor(
+class GetAllMatchesUseCase @Inject constructor(
     private val matchRepository: MatchRepository
 ) {
     suspend operator fun invoke(): List<MatchResult> = matchRepository.getAll()

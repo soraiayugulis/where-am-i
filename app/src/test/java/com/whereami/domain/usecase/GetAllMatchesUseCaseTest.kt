@@ -8,7 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class GetMatchHistoryUseCaseTest {
+class GetAllMatchesUseCaseTest {
     @Test
     fun `invoke returns matches from repository`() = runBlocking {
         val match = MatchResult(
@@ -20,7 +20,7 @@ class GetMatchHistoryUseCaseTest {
             status = Status.INCOMPLETE
         )
         val fake = FakeMatchRepository(listOf(match))
-        val useCase = GetMatchHistoryUseCase(fake)
+        val useCase = GetAllMatchesUseCase(fake)
 
         val result = useCase()
 
