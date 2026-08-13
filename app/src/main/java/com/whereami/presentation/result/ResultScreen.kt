@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +61,8 @@ import com.whereami.presentation.theme.White
 @Composable
 fun ResultScreen(
     viewModel: ResultViewModel = hiltViewModel(),
-    onHome: () -> Unit = {}
+    onHome: () -> Unit = {},
+    onPlayAgain: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
     val result = state
@@ -82,11 +85,11 @@ fun ResultScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(top = 24.dp, bottom = 64.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(top = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -94,10 +97,11 @@ fun ResultScreen(
                         if (result.status == Status.COMPLETED) R.string.result_completed
                         else R.string.result_time_up
                     ),
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.headlineMedium,
                     color = White,
                     fontFamily = FredokaFontFamily,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -132,15 +136,15 @@ fun ResultScreen(
 
                 DetailRow(label = stringResource(R.string.result_target_label), value = targetValue)
                 if (result.status == Status.COMPLETED) {
-                    Spacer(modifier = Modifier.height(14.dp))
+                    DetailDivider()
                     DetailRow(label = stringResource(R.string.result_your_guess_label), value = guessValue)
                     if (result.distanceKm != null) {
-                        Spacer(modifier = Modifier.height(14.dp))
+                        DetailDivider()
                         DetailRow(label = stringResource(R.string.result_distance_label), value = "%.1f km".format(result.distanceKm))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(72.dp))
 
                 Text(
                     text = stringResource(R.string.result_score_label),
@@ -158,18 +162,46 @@ fun ResultScreen(
                 )
             }
 
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(bottom = 64.dp)
+        ) {
             AppButton(
                 text = stringResource(R.string.result_back_home_button),
-                onClick = onHome
+                onClick = onHome,
+                modifier = Modifier.weight(1f)
+            )
+            AppButton(
+                text = stringResource(R.string.result_play_again_button),
+                onClick = onPlayAgain,
+                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
 @Composable
+private fun DetailDivider() {
+    Spacer(modifier = Modifier.height(14.dp))
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth(),
+        color = DarkBlue.copy(alpha = 0.2f),
+        thickness = 1.dp
+    )
+    Spacer(modifier = Modifier.height(14.dp))
+}
+
+@Composable
 private fun DetailRow(label: String, value: String) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -177,14 +209,18 @@ private fun DetailRow(label: String, value: String) {
             color = DarkBlue,
             fontFamily = FredokaFontFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            textAlign = TextAlign.Start
         )
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = value,
+            modifier = Modifier.weight(1f, fill = false),
             color = White,
             fontFamily = NunitoFontFamily,
             fontWeight = FontWeight.ExtraBold,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            textAlign = TextAlign.End
         )
     }
 }
