@@ -146,13 +146,22 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(8.dp))
 
-            AppButton(
-                text = stringResource(R.string.settings_back_button),
-                onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp)
+            ) {
+                Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.width(8.dp))
+                AppButton(
+                    text = stringResource(R.string.settings_back_button),
+                    onClick = onBack,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
         }
     }
 
