@@ -11,6 +11,7 @@ import com.whereami.presentation.game.StreetViewScreen
 import com.whereami.presentation.ranking.RankingScreen
 import com.whereami.presentation.home.HomeScreen
 import com.whereami.presentation.result.ResultScreen
+import com.whereami.presentation.settings.SettingsScreen
 
 object Routes {
     const val HOME = "home"
@@ -18,6 +19,7 @@ object Routes {
     const val GUESS = "guess"
     const val RESULT = "result"
     const val RANKING = "ranking"
+    const val SETTINGS = "settings"
     const val ERROR = "error"
 }
 
@@ -30,7 +32,8 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.HOME) {
             HomeScreen(
                 onStartGame = { navController.navigate(Routes.PLAY) },
-                onRanking = { navController.navigate(Routes.RANKING) }
+                onRanking = { navController.navigate(Routes.RANKING) },
+                onSettings = { navController.navigate(Routes.SETTINGS) }
             )
         }
         composable(Routes.PLAY) {
@@ -48,6 +51,9 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         }
         composable(Routes.RANKING) {
             RankingScreen()
+        }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.ERROR) {
             ErrorScreen(onHome = { navController.navigateToHome() })

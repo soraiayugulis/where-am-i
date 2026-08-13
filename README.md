@@ -31,7 +31,7 @@ The app stores every match locally and provides a ranking/history screen to revi
 
 <img src="docs/images/where-am-i-home.jpeg" alt="Home screen" width="280" />
 
-The app's entry point. From here the player can start a new match or open the ranking to review the top 5 best matches and their total score.
+The app's entry point. From here the player can start a new match or open the ranking to review the top 5 best matches and their total score. Also from here the player can access the settings screen.
 
 ### Street View
 
@@ -50,6 +50,18 @@ It displays the top 5 best matches and the combined total score from those top 5
 <img src="docs/images/where-am-i-result.jpeg" alt="Result screen" width="280" />
 
 It displays the real target location, the player's guess, the distance between them, and the final score calculated from proximity, country bonus, and remaining time.
+
+### Settings
+
+<img src="docs/images/where-am-i-clear-history.jpeg" alt="Settings screen" width="280" />
+
+It allows the player to switch the language between English and Portuguese (Brazil) and clear the match history.
+
+### Portuguese - Brazil Support
+
+<img src="docs/images/where-am-i-home-pt.jpeg" alt="Home screen in Portuguese" width="280" />
+
+The same Home screen options, now in Portuguese (Brazil). All the main actions — starting a match, opening the ranking, and accessing settings — are translated to match the selected language.
 
 
 ## 🏗️ And which patterns it uses❓

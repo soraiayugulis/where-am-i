@@ -25,8 +25,11 @@ import com.google.android.gms.maps.StreetViewPanoramaOptions
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.StreetViewPanoramaLocation
+import com.google.android.gms.maps.model.StreetViewSource
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
+import androidx.compose.ui.res.stringResource
+import com.whereami.R
 import com.whereami.presentation.components.AppButton
 import com.whereami.presentation.error.ErrorScreen
 import com.whereami.presentation.game.components.GameTimerBar
@@ -58,7 +61,7 @@ fun StreetViewScreen(
 
     if (hasError) {
         ErrorScreen(
-            message = "Could not load a Street View location. Please try again.",
+            message = stringResource(R.string.error_street_view_loading),
             onHome = onHome
         )
         return
@@ -77,7 +80,7 @@ fun StreetViewScreen(
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
                 AppButton(
-                    text = "Guess it!",
+                    text = stringResource(R.string.game_guess_button),
                     onClick = onGuess,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -120,7 +123,7 @@ private fun StreetViewPanorama(
             panorama.setOnStreetViewPanoramaChangeListener { location: StreetViewPanoramaLocation? ->
                 if (location?.position == null) currentOnNoCoverage()
             }
-            panorama.setPosition(position, PANORAMA_SEARCH_RADIUS_METERS)
+            panorama.setPosition(position, PANORAMA_SEARCH_RADIUS_METERS, StreetViewSource.OUTDOOR)
         }
     }
 

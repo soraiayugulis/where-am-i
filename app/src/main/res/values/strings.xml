@@ -1,3 +1,50 @@
 <resources>
     <string name="app_name">Where Am I?</string>
+
+    <!-- Home -->
+    <string name="home_start_button">Start</string>
+    <string name="home_ranking_button">Ranking</string>
+    <string name="settings_button_content_description">Settings</string>
+
+    <!-- Game -->
+    <string name="game_guess_button">Guess it!</string>
+    <string name="game_submit_button">I know where I am!</string>
+
+    <!-- Errors -->
+    <string name="error_street_view_loading">Could not load a Street View location. Please try again.</string>
+    <string name="error_generic_message">An error occurred. Please try again.</string>
+    <string name="error_back_home_button">Back to Home</string>
+
+    <!-- Result -->
+    <string name="result_completed">ROUND COMPLETE!</string>
+    <string name="result_time_up">"TIME'S UP!"</string>
+    <string name="result_unknown_location">Neverland</string>
+    <string name="result_target_label">Target:</string>
+    <string name="result_your_guess_label">Your guess:</string>
+    <string name="result_distance_label">Distance:</string>
+    <string name="result_score_label">Score:</string>
+    <string name="result_target_marker">Target:</string>
+    <string name="result_your_guess_marker">Your guess:</string>
+    <string name="result_back_home_button">Back to Home</string>
+
+    <!-- Ranking -->
+    <string name="ranking_title">Ranking Top 5</string>
+    <string name="ranking_total_score">Total Score:</string>
+    <string name="ranking_your_guess">Your guess:</string>
+    <string name="ranking_score">Score:</string>
+    <string name="ranking_empty">No matches yet</string>
+    <string name="ranking_status_completed">Completed</string>
+    <string name="ranking_status_incomplete">Incomplete</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_label">Language</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_portuguese">Portuguese (Brazil)</string>
+    <string name="settings_back_button">Back</string>
+    <string name="settings_clear_history_button">Clear match history</string>
+    <string name="settings_clear_history_title">Are you sure?</string>
+    <string name="settings_clear_history_message">All stored matches will be permanently removed. This action cannot be undone.</string>
+    <string name="settings_clear_history_confirm">Clear</string>
+    <string name="settings_clear_history_cancel">Cancel</string>
 </resources>

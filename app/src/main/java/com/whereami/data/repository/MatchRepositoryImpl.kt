@@ -19,6 +19,10 @@ class MatchRepositoryImpl @Inject constructor(
         return matchDao.getAll().map { it.toDomain() }
     }
 
+    override suspend fun clearAll() {
+        matchDao.deleteAll()
+    }
+
     private fun MatchResult.toEntity(): MatchEntity = MatchEntity(
         id = id,
         datePlayed = datePlayed,

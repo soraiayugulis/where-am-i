@@ -45,6 +45,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.whereami.domain.model.Location
 import com.whereami.domain.model.Status
+import androidx.compose.ui.res.stringResource
+import com.whereami.R
 import com.whereami.presentation.components.AppButton
 import com.whereami.presentation.theme.DarkBlue
 import com.whereami.presentation.theme.EarthGreen
@@ -88,7 +90,10 @@ fun ResultScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = if (result.status == Status.COMPLETED) "ROUND COMPLETE!" else "TIME'S UP!",
+                    text = stringResource(
+                        if (result.status == Status.COMPLETED) R.string.result_completed
+                        else R.string.result_time_up
+                    ),
                     style = MaterialTheme.typography.displaySmall,
                     color = White,
                     fontFamily = FredokaFontFamily,
@@ -111,32 +116,34 @@ fun ResultScreen(
                 val guessCountry = result.guessAddress?.country
                 val sameCountry = !targetCountry.isNullOrBlank() && targetCountry == guessCountry
 
+                val unknownLocation = stringResource(R.string.result_unknown_location)
+
                 val targetValue = if (sameCountry) {
-                    result.targetAddress?.format() ?: "Unknown location"
+                    result.targetAddress?.format() ?: unknownLocation
                 } else {
-                    targetCountry ?: "Unknown location"
+                    targetCountry ?: unknownLocation
                 }
 
                 val guessValue = if (sameCountry) {
-                    result.guessAddress?.format() ?: "Unknown location"
+                    result.guessAddress?.format() ?: unknownLocation
                 } else {
-                    guessCountry ?: "Unknown location"
+                    guessCountry ?: unknownLocation
                 }
 
-                DetailRow(label = "Target", value = targetValue)
+                DetailRow(label = stringResource(R.string.result_target_label), value = targetValue)
                 if (result.status == Status.COMPLETED) {
                     Spacer(modifier = Modifier.height(14.dp))
-                    DetailRow(label = "Your guess", value = guessValue)
+                    DetailRow(label = stringResource(R.string.result_your_guess_label), value = guessValue)
                     if (result.distanceKm != null) {
                         Spacer(modifier = Modifier.height(14.dp))
-                        DetailRow(label = "Distance", value = "%.1f km".format(result.distanceKm))
+                        DetailRow(label = stringResource(R.string.result_distance_label), value = "%.1f km".format(result.distanceKm))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Score:",
+                    text = stringResource(R.string.result_score_label),
                     style = MaterialTheme.typography.headlineSmall,
                     color = PinRed,
                     fontFamily = NunitoFontFamily,
@@ -152,7 +159,7 @@ fun ResultScreen(
             }
 
             AppButton(
-                text = "Back to Home",
+                text = stringResource(R.string.result_back_home_button),
                 onClick = onHome
             )
         }
@@ -166,7 +173,7 @@ private fun DetailRow(label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "$label:",
+            text = label,
             color = DarkBlue,
             fontFamily = FredokaFontFamily,
             fontWeight = FontWeight.Normal,
@@ -190,6 +197,8 @@ private fun ResultMap(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val targetMarkerTitle = stringResource(R.string.result_target_marker)
+    val yourGuessMarkerTitle = stringResource(R.string.result_your_guess_marker)
     val mapView = remember {
         MapView(context).apply {
             onCreate(Bundle())
@@ -205,7 +214,7 @@ private fun ResultMap(
             map.addMarker(
                 MarkerOptions()
                     .position(targetLatLng)
-                    .title("Target")
+                    .title(targetMarkerTitle)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             )
             if (guess == null) {
@@ -216,7 +225,7 @@ private fun ResultMap(
             map.addMarker(
                 MarkerOptions()
                     .position(guessLatLng)
-                    .title("Your guess")
+                    .title(yourGuessMarkerTitle)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
             map.addPolyline(
