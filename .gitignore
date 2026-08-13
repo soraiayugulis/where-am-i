@@ -17,3 +17,14 @@ captures/
 
 # OS
 .DS_Store
+
+# Windsurf / Devin local config
+.devin/
+.vscode/
+
+# Draft docs
+docs/adr-settings.md
+docs/implementation-plan.md
+
+# Project agent notes (local only)
+/AGENTS.md
