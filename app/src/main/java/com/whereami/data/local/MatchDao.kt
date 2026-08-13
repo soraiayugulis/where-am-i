@@ -14,4 +14,7 @@ interface MatchDao {
 
     @Query("SELECT * FROM matches WHERE id = :id")
     suspend fun getById(id: Long): MatchEntity?
+
+    @Query("DELETE FROM matches")
+    suspend fun deleteAll()
 }
