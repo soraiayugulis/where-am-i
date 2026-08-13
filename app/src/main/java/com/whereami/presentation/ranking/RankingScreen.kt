@@ -33,7 +33,10 @@ import com.whereami.presentation.theme.FredokaFontFamily
 import com.whereami.presentation.theme.NunitoFontFamily
 import com.whereami.presentation.theme.PinRed
 import com.whereami.presentation.theme.SkyTop
+import com.whereami.R
+import com.whereami.domain.model.Status
 import com.whereami.presentation.theme.White
+import androidx.compose.ui.res.stringResource
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,7 +82,7 @@ private fun RankingHeader(totalScore: Int) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Ranking Top 5",
+            text = stringResource(R.string.ranking_title),
             style = MaterialTheme.typography.titleLarge,
             color = PinRed,
             fontFamily = FredokaFontFamily,
@@ -94,7 +97,7 @@ private fun RankingHeader(totalScore: Int) {
                         fontWeight = FontWeight.Normal
                     )
                 ) {
-                    append("Total Score: ")
+                    append(stringResource(R.string.ranking_total_score))
                 }
                 withStyle(
                     SpanStyle(
@@ -123,7 +126,10 @@ private fun RankingItem(match: RankingMatch) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = match.match.status.name,
+                text = when (match.match.status) {
+                    Status.COMPLETED -> stringResource(R.string.ranking_status_completed)
+                    Status.INCOMPLETE -> stringResource(R.string.ranking_status_incomplete)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 color = DarkBlue,
                 fontFamily = FredokaFontFamily,
@@ -139,7 +145,7 @@ private fun RankingItem(match: RankingMatch) {
                                 fontWeight = FontWeight.Normal
                             )
                         ) {
-                            append("Your guess: ")
+                            append(stringResource(R.string.ranking_your_guess))
                         }
                         withStyle(
                             SpanStyle(
@@ -164,7 +170,7 @@ private fun RankingItem(match: RankingMatch) {
                             fontWeight = FontWeight.Normal
                         )
                     ) {
-                        append("Score: ")
+                        append(stringResource(R.string.ranking_score))
                     }
                     withStyle(
                         SpanStyle(
@@ -200,7 +206,7 @@ private fun EmptyRanking() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "No matches yet",
+            text = stringResource(R.string.ranking_empty),
             style = MaterialTheme.typography.bodyLarge,
             color = DarkBlue
         )
