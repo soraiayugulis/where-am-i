@@ -1,4 +1,4 @@
-package com.whereami.presentation.history
+package com.whereami.presentation.ranking
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -36,37 +35,34 @@ import com.whereami.presentation.theme.PinRed
 import com.whereami.presentation.theme.SkyTop
 import com.whereami.presentation.theme.White
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun HistoryScreen(
-    viewModel: HistoryViewModel = hiltViewModel()
+fun RankingScreen(
+    viewModel: RankingViewModel = hiltViewModel()
 ) {
-    val groups by viewModel.groups.collectAsState()
-    val weeklyScore by viewModel.weeklyScore.collectAsState()
+    val topMatches by viewModel.topMatches.collectAsState()
+    val totalScore by viewModel.totalScore.collectAsState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(SkyTop.copy(alpha = 0.55f))
     ) {
-        if (groups.isEmpty()) {
-            EmptyHistory()
+        if (topMatches.isEmpty()) {
+            EmptyRanking()
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 12.dp)
             ) {
-                for (group in groups) {
-                    item {
-                        DayHeader(dayStartMs = group.dayStartMs, weeklyScore = weeklyScore)
-                    }
-                    items(group.matches) { match ->
-                        MatchHistoryItem(match)
-                    }
+                item {
+                    RankingHeader(totalScore = totalScore)
+                }
+                items(topMatches) { match ->
+                    RankingItem(match)
                 }
             }
         }
@@ -74,8 +70,7 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun DayHeader(dayStartMs: Long, weeklyScore: Int) {
-    val day = dayStartMs.formatDay()
+private fun RankingHeader(totalScore: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,7 +79,7 @@ private fun DayHeader(dayStartMs: Long, weeklyScore: Int) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = day,
+            text = "Ranking Top 5",
             style = MaterialTheme.typography.titleLarge,
             color = PinRed,
             fontFamily = FredokaFontFamily,
@@ -109,7 +104,7 @@ private fun DayHeader(dayStartMs: Long, weeklyScore: Int) {
                         fontSize = 22.sp
                     )
                 ) {
-                    append(weeklyScore.toString())
+                    append(totalScore.toString())
                 }
             },
             style = MaterialTheme.typography.titleLarge
@@ -118,7 +113,7 @@ private fun DayHeader(dayStartMs: Long, weeklyScore: Int) {
 }
 
 @Composable
-private fun MatchHistoryItem(match: HistoryMatch) {
+private fun RankingItem(match: RankingMatch) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
@@ -185,12 +180,20 @@ private fun MatchHistoryItem(match: HistoryMatch) {
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(top = 4.dp)
             )
+            Text(
+                text = match.match.datePlayed.formatDateTime(),
+                style = MaterialTheme.typography.bodySmall,
+                color = DarkBlue,
+                fontFamily = NunitoFontFamily,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }
 
 @Composable
-private fun EmptyHistory() {
+private fun EmptyRanking() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -204,17 +207,6 @@ private fun EmptyHistory() {
     }
 }
 
-private fun Long.formatDay(): String {
-    val todayStart = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-
-    return if (this == todayStart) {
-        "Today"
-    } else {
-        SimpleDateFormat("dd/MM", Locale.getDefault()).format(Date(this))
-    }
+private fun Long.formatDateTime(): String {
+    return SimpleDateFormat("dd/MM - HH:mm", Locale.getDefault()).format(Date(this))
 }

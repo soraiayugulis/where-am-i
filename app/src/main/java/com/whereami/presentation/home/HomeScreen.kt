@@ -26,7 +26,7 @@ import com.whereami.presentation.components.AppButton
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onStartGame: () -> Unit = {},
-    onHistory: () -> Unit = {}
+    onRanking: () -> Unit = {}
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -66,8 +66,8 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f)
                 )
                 AppButton(
-                    text = "History",
-                    onClick = onHistory,
+                    text = "Ranking",
+                    onClick = onRanking,
                     modifier = Modifier.weight(1f)
                 )
             }

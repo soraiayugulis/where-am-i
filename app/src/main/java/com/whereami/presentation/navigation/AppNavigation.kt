@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.whereami.presentation.error.ErrorScreen
 import com.whereami.presentation.game.GuessMapScreen
 import com.whereami.presentation.game.StreetViewScreen
-import com.whereami.presentation.history.HistoryScreen
+import com.whereami.presentation.ranking.RankingScreen
 import com.whereami.presentation.home.HomeScreen
 import com.whereami.presentation.result.ResultScreen
 
@@ -17,7 +17,7 @@ object Routes {
     const val PLAY = "play"
     const val GUESS = "guess"
     const val RESULT = "result"
-    const val HISTORY = "history"
+    const val RANKING = "ranking"
     const val ERROR = "error"
 }
 
@@ -30,7 +30,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.HOME) {
             HomeScreen(
                 onStartGame = { navController.navigate(Routes.PLAY) },
-                onHistory = { navController.navigate(Routes.HISTORY) }
+                onRanking = { navController.navigate(Routes.RANKING) }
             )
         }
         composable(Routes.PLAY) {
@@ -46,8 +46,8 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.RESULT) {
             ResultScreen(onHome = { navController.navigateToHome() })
         }
-        composable(Routes.HISTORY) {
-            HistoryScreen()
+        composable(Routes.RANKING) {
+            RankingScreen()
         }
         composable(Routes.ERROR) {
             ErrorScreen(onHome = { navController.navigateToHome() })
