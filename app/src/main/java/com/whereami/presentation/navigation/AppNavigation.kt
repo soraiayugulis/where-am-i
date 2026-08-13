@@ -47,7 +47,10 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             GuessMapScreen(onSubmit = { navController.navigateToResult() })
         }
         composable(Routes.RESULT) {
-            ResultScreen(onHome = { navController.navigateToHome() })
+            ResultScreen(
+                onHome = { navController.navigateToHome() },
+                onPlayAgain = { navController.navigateToPlay() }
+            )
         }
         composable(Routes.RANKING) {
             RankingScreen()
@@ -63,6 +66,12 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
 private fun NavHostController.navigateToResult() {
     navigate(Routes.RESULT) {
+        popUpTo(Routes.HOME) { inclusive = false }
+    }
+}
+
+private fun NavHostController.navigateToPlay() {
+    navigate(Routes.PLAY) {
         popUpTo(Routes.HOME) { inclusive = false }
     }
 }
