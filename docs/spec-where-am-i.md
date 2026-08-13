@@ -331,3 +331,17 @@ system must honor.
 - Match coordinates are stored as `"lat,lng"` strings rounded to 5 decimal
   places.
 - The weekly score window is a rolling 168 hours from the current UTC timestamp.
+
+## Addendum — History to Ranking UI Change
+
+After the original specification was approved and implemented, the "History" feature was updated to a "Ranking" feature to better reflect the user-facing behavior. The following changes apply to the presentation layer and are now in effect:
+
+- The Home screen button previously labeled "History" now reads "Ranking".
+- The navigation route, screen, and ViewModel were renamed from `history` to `ranking` (`RankingScreen`, `RankingViewModel`, `RankingMatch`).
+- The screen title is "Ranking Top 5".
+- The list displays the top 5 matches with the highest `score` across all stored matches, with no weekly time window.
+- The "Total Score" shown is the sum of the top 5 scores.
+- Each item shows the match status, guessed country (when available), score, and the `date_played` formatted as `dd/MM - HH:mm` using the 24-hour clock.
+- The domain use case `GetMatchHistoryUseCase` was renamed to `GetAllMatchesUseCase`; the ranking computation (top 5 + total) is performed in `RankingViewModel`.
+
+The remainder of the specification remains unchanged and has been delivered as planned.
