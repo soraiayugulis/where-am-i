@@ -34,8 +34,8 @@
     <string name="ranking_your_guess">Seu palpite: </string>
     <string name="ranking_score">Pontuação: </string>
     <string name="ranking_empty">Nenhuma partida ainda</string>
-    <string name="ranking_status_completed">Concluído</string>
-    <string name="ranking_status_incomplete">Incompleto</string>
+    <string name="ranking_status_completed">CONCLUÍDO</string>
+    <string name="ranking_status_incomplete">INCOMPLETO</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
