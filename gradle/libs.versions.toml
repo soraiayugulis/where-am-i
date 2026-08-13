@@ -20,7 +20,6 @@ mockito = "5.12.0"
 turbine = "1.1.0"
 androidxJunit = "1.2.1"
 espresso = "3.6.1"
-
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

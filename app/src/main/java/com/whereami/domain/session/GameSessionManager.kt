@@ -81,7 +81,6 @@ class GameSessionManager @Inject constructor(
     suspend fun expire() {
         val target = this.target ?: return
         if (_state.value is GameSessionState.Finished) return
-        stop()
         val match = MatchResult(
             datePlayed = clock.now(),
             target = target,
@@ -90,12 +89,21 @@ class GameSessionManager @Inject constructor(
             score = 0,
             status = Status.INCOMPLETE
         )
-        saveMatch(match)
         _state.value = GameSessionState.Finished(match)
+        saveMatch(match)
+        stop()
     }
 
     fun stop() {
         gameTimer.stop()
         job?.cancel()
+    }
+
+    fun pauseTimerIfPlaying() {
+        if (state.value is GameSessionState.Playing) gameTimer.pause()
+    }
+
+    fun resumeTimerIfPlaying() {
+        if (state.value is GameSessionState.Playing) gameTimer.resume()
     }
 }

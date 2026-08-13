@@ -1,13 +1,18 @@
 package com.whereami.presentation.history
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,28 +20,53 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.whereami.domain.model.MatchResult
-import java.text.DateFormat
+import com.whereami.presentation.theme.AccentYellow
+import com.whereami.presentation.theme.DarkBlue
+import com.whereami.presentation.theme.FredokaFontFamily
+import com.whereami.presentation.theme.NunitoFontFamily
+import com.whereami.presentation.theme.PinRed
+import com.whereami.presentation.theme.SkyTop
+import com.whereami.presentation.theme.White
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val groups by viewModel.groups.collectAsState()
+    val weeklyScore by viewModel.weeklyScore.collectAsState()
 
-    if (groups.isEmpty()) {
-        EmptyHistory()
-    } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            groups.forEach { group ->
-                item(key = "day-${group.dayStartMs}") {
-                    DayHeader(group.dayStartMs)
-                }
-                items(group.matches, key = { it.id }) { match ->
-                    MatchHistoryItem(match)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SkyTop.copy(alpha = 0.55f))
+    ) {
+        if (groups.isEmpty()) {
+            EmptyHistory()
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
+            ) {
+                for (group in groups) {
+                    item {
+                        DayHeader(dayStartMs = group.dayStartMs, weeklyScore = weeklyScore)
+                    }
+                    items(group.matches) { match ->
+                        MatchHistoryItem(match)
+                    }
                 }
             }
         }
@@ -44,25 +74,117 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun DayHeader(dayStartMs: Long) {
-    val day = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(dayStartMs))
-    Text(
-        text = day,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+private fun DayHeader(dayStartMs: Long, weeklyScore: Int) {
+    val day = dayStartMs.formatDay()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = day,
+            style = MaterialTheme.typography.titleLarge,
+            color = PinRed,
+            fontFamily = FredokaFontFamily,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        color = DarkBlue,
+                        fontFamily = NunitoFontFamily,
+                        fontWeight = FontWeight.Normal
+                    )
+                ) {
+                    append("Total Score: ")
+                }
+                withStyle(
+                    SpanStyle(
+                        color = AccentYellow,
+                        fontFamily = FredokaFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 22.sp
+                    )
+                ) {
+                    append(weeklyScore.toString())
+                }
+            },
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
 }
 
 @Composable
-private fun MatchHistoryItem(match: MatchResult) {
+private fun MatchHistoryItem(match: HistoryMatch) {
     Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(vertical = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Status: ${match.status}")
-            Text("Score: ${match.score}")
+            Text(
+                text = match.match.status.name,
+                style = MaterialTheme.typography.titleMedium,
+                color = DarkBlue,
+                fontFamily = FredokaFontFamily,
+                fontWeight = FontWeight.Normal
+            )
+            match.guessedLocation?.let {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            SpanStyle(
+                                color = DarkBlue,
+                                fontFamily = NunitoFontFamily,
+                                fontWeight = FontWeight.Normal
+                            )
+                        ) {
+                            append("Your guess: ")
+                        }
+                        withStyle(
+                            SpanStyle(
+                                color = DarkBlue,
+                                fontFamily = NunitoFontFamily,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append(it)
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color = DarkBlue,
+                            fontFamily = NunitoFontFamily,
+                            fontWeight = FontWeight.Normal
+                        )
+                    ) {
+                        append("Score: ")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            color = AccentYellow,
+                            fontFamily = FredokaFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp
+                        )
+                    ) {
+                        append(match.match.score.toString())
+                    }
+                },
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }
@@ -74,6 +196,25 @@ private fun EmptyHistory() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("No matches yet")
+        Text(
+            text = "No matches yet",
+            style = MaterialTheme.typography.bodyLarge,
+            color = DarkBlue
+        )
+    }
+}
+
+private fun Long.formatDay(): String {
+    val todayStart = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    return if (this == todayStart) {
+        "Today"
+    } else {
+        SimpleDateFormat("dd/MM", Locale.getDefault()).format(Date(this))
     }
 }

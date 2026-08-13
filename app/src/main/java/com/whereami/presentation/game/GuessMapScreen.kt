@@ -1,6 +1,7 @@
 package com.whereami.presentation.game
 
 import android.os.Bundle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +11,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -28,6 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
 import com.whereami.presentation.game.components.SubmitButton
+import com.whereami.presentation.theme.SkyBase
 
 @Composable
 fun GuessMapScreen(
@@ -36,6 +41,7 @@ fun GuessMapScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val guess by viewModel.guess.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(state) {
         if (state is GameSessionState.Finished) {
@@ -43,27 +49,50 @@ fun GuessMapScreen(
         }
     }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.pauseTimer()
+                Lifecycle.Event.ON_PAUSE -> viewModel.resumeTimer()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         MapView(
+            guess = guess,
             onMapClick = { viewModel.selectGuess(it) },
             modifier = Modifier.weight(1f)
         )
-        SubmitButton(
-            enabled = guess != null,
-            onClick = { viewModel.confirmGuess() },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(SkyBase)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SubmitButton(
+                enabled = guess != null,
+                onClick = { viewModel.confirmGuess() },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
 private fun MapView(
+    guess: Location?,
     onMapClick: (Location) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnMapClick by rememberUpdatedState(onMapClick)
+    var googleMap by remember { mutableStateOf<GoogleMap?>(null) }
     val mapView = remember {
         MapView(context).apply {
             onCreate(Bundle())
@@ -73,18 +102,27 @@ private fun MapView(
     }
 
     LaunchedEffect(Unit) {
-        mapView.getMapAsync { googleMap: GoogleMap ->
-            googleMap.uiSettings.isZoomControlsEnabled = true
-            googleMap.uiSettings.isCompassEnabled = true
-            googleMap.uiSettings.isScrollGesturesEnabled = true
-            googleMap.uiSettings.isZoomGesturesEnabled = true
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 1f))
+        mapView.getMapAsync { loadedMap: GoogleMap ->
+            googleMap = loadedMap
+            loadedMap.uiSettings.isZoomControlsEnabled = true
+            loadedMap.uiSettings.isCompassEnabled = true
+            loadedMap.uiSettings.isScrollGesturesEnabled = true
+            loadedMap.uiSettings.isZoomGesturesEnabled = true
+            loadedMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(0.0, 0.0), 1f))
 
-            googleMap.setOnMapClickListener { latLng ->
-                googleMap.clear()
-                googleMap.addMarker(MarkerOptions().position(latLng))
+            loadedMap.setOnMapClickListener { latLng ->
                 currentOnMapClick(Location(latLng.latitude, latLng.longitude))
             }
+        }
+    }
+
+    LaunchedEffect(guess) {
+        val map = googleMap ?: return@LaunchedEffect
+        map.clear()
+        guess?.let {
+            val latLng = LatLng(it.lat, it.lng)
+            map.addMarker(MarkerOptions().position(latLng))
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 4f))
         }
     }
 

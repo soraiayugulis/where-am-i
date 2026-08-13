@@ -27,6 +27,9 @@ class StreetViewViewModel @Inject constructor(
         gameSessionManager.start(Random.nextInt(), viewModelScope)
     }
 
+    fun pauseTimer() = gameSessionManager.pauseTimerIfPlaying()
+    fun resumeTimer() = gameSessionManager.resumeTimerIfPlaying()
+
     fun onNoCoverage() {
         coverageAttempts++
         if (coverageAttempts >= MAX_COVERAGE_ATTEMPTS) {
