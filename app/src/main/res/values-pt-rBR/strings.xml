@@ -16,7 +16,7 @@
     <string name="error_back_home_button">Voltar</string>
 
     <!-- Result -->
-    <string name="result_completed">RODADA CONCLUÍDA!</string>
+    <string name="result_completed">RODADA COMPLETA!</string>
     <string name="result_time_up">TEMPO ESGOTADO!</string>
     <string name="result_unknown_location">Terra do Nunca</string>
     <string name="result_target_label">Local correto:</string>
@@ -26,6 +26,7 @@
     <string name="result_target_marker">Correto:</string>
     <string name="result_your_guess_marker">Seu palpite:</string>
     <string name="result_back_home_button">Voltar</string>
+    <string name="result_play_again_button">De novo!</string>
 
     <!-- Ranking -->
     <string name="ranking_title">Ranking Top 5</string>
