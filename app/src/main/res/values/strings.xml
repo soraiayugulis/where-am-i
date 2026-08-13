@@ -26,6 +26,7 @@
     <string name="result_target_marker">Target:</string>
     <string name="result_your_guess_marker">Your guess:</string>
     <string name="result_back_home_button">Back to Home</string>
+    <string name="result_play_again_button">Again!</string>
 
     <!-- Ranking -->
     <string name="ranking_title">Ranking Top 5</string>

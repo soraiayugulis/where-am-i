@@ -16,7 +16,7 @@
     <string name="error_back_home_button">Voltar</string>
 
     <!-- Result -->
-    <string name="result_completed">RODADA CONCLUÍDA!</string>
+    <string name="result_completed">RODADA COMPLETA!</string>
     <string name="result_time_up">TEMPO ESGOTADO!</string>
     <string name="result_unknown_location">Terra do Nunca</string>
     <string name="result_target_label">Local correto:</string>
@@ -26,6 +26,7 @@
     <string name="result_target_marker">Correto:</string>
     <string name="result_your_guess_marker">Seu palpite:</string>
     <string name="result_back_home_button">Voltar</string>
+    <string name="result_play_again_button">De novo!</string>
 
     <!-- Ranking -->
     <string name="ranking_title">Ranking Top 5</string>
@@ -33,8 +34,8 @@
     <string name="ranking_your_guess">Seu palpite: </string>
     <string name="ranking_score">Pontuação: </string>
     <string name="ranking_empty">Nenhuma partida ainda</string>
-    <string name="ranking_status_completed">Concluído</string>
-    <string name="ranking_status_incomplete">Incompleto</string>
+    <string name="ranking_status_completed">CONCLUÍDO</string>
+    <string name="ranking_status_incomplete">INCOMPLETO</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
