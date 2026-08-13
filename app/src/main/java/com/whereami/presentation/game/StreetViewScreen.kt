@@ -3,7 +3,6 @@ package com.whereami.presentation.game
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.StreetViewPanoramaLocation
 import com.whereami.domain.model.Location
 import com.whereami.domain.session.GameSessionState
+import com.whereami.presentation.components.AppButton
 import com.whereami.presentation.error.ErrorScreen
 import com.whereami.presentation.game.components.GameTimerBar
 
@@ -42,6 +42,19 @@ fun StreetViewScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val hasError by viewModel.hasError.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.resumeTimer()
+                Lifecycle.Event.ON_PAUSE -> viewModel.pauseTimer()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     if (hasError) {
         ErrorScreen(
@@ -63,14 +76,13 @@ fun StreetViewScreen(
                     isWarning = current.isWarning,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
-                Button(
+                AppButton(
+                    text = "Guess it!",
                     onClick = onGuess,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                ) {
-                    Text("Guess")
-                }
+                        .padding(end = 16.dp, bottom = 80.dp)
+                )
             }
             is GameSessionState.Finished -> LaunchedEffect(Unit) { onFinished() }
             GameSessionState.Idle -> CircularProgressIndicator(

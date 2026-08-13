@@ -3,6 +3,7 @@ package com.whereami.presentation.game
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.whereami.domain.model.Location
+import com.whereami.domain.repository.CountryResolver
 import com.whereami.domain.session.GameSessionManager
 import com.whereami.domain.session.GameSessionState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GuessMapViewModel @Inject constructor(
-    private val gameSessionManager: GameSessionManager
+    private val gameSessionManager: GameSessionManager,
+    private val countryResolver: CountryResolver
 ) : ViewModel() {
     val state: StateFlow<GameSessionState> = gameSessionManager.state
 
@@ -21,7 +23,12 @@ class GuessMapViewModel @Inject constructor(
     val guess: StateFlow<Location?> = _guess
 
     fun selectGuess(location: Location) {
-        _guess.value = location
+        viewModelScope.launch {
+            val country = countryResolver.resolve(location)
+            if (country != null) {
+                _guess.value = location
+            }
+        }
     }
 
     fun confirmGuess() {
@@ -30,4 +37,7 @@ class GuessMapViewModel @Inject constructor(
             gameSessionManager.submitGuess(selected)
         }
     }
+
+    fun pauseTimer() = gameSessionManager.pauseTimerIfPlaying()
+    fun resumeTimer() = gameSessionManager.resumeTimerIfPlaying()
 }
