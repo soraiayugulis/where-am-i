@@ -3,6 +3,11 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.9.24"
     id("org.jetbrains.kotlin.kapt") version "1.9.24"
     id("com.google.dagger.hilt.android") version "2.51.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.4"
+}
+
+detekt {
+    baseline = file("detekt-baseline.xml")
 }
 
 val mapsApiKey = rootProject.file("local.properties").takeIf { it.exists() }?.useLines { lines ->
