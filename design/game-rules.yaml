@@ -1,0 +1,9 @@
+feature: streak-bonus
+description: Consecutive correct guesses grant a streak multiplier
+rules:
+  - id: STREAK-1
+    when: correct guesses in a row >= 3
+    then: score multiplier = 1.5x
+  - id: STREAK-2
+    when: streak broken
+    then: multiplier resets to 1.0
