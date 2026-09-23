@@ -1,0 +1,141 @@
+name: Design-to-Code
+
+# Runs the design-to-code AI pipeline whenever a spec under design/ changes on main.
+# The pipeline generates Kotlin code with Ollama, enforces the quality gate
+# (testDebugUnitTest + detekt), then pushes feature/ai-gen-<sha> and opens a PR.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'design/**'
+  workflow_dispatch:
+    inputs:
+      changed_files:
+        description: 'Comma-separated spec files under design/ (empty = all specs)'
+        required: false
+        type: string
+      base_ref:
+        description: 'Base ref for spec diff analysis'
+        required: false
+        type: string
+        default: 'HEAD~1'
+      ollama_model:
+        description: 'Ollama model used for code generation'
+        required: false
+        type: string
+        default: 'qwen2.5-coder:7b'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: design-to-code-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+        options: >-
+          --name ollama
+          --health-cmd "ollama list"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - name: Checkout where-am-i
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract changed spec files
+        id: specs
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            BASE_REF="${{ inputs.base_ref || 'HEAD~1' }}"
+            FILES="${{ inputs.changed_files }}"
+            if [ -z "$FILES" ]; then
+              FILES=$(find design -type f \( -name '*.yaml' -o -name '*.yml' -o -name '*.md' \) | sort | tr '\n' ',' | sed 's/,$//')
+            fi
+          else
+            BASE_REF="${{ github.event.before }}"
+            FILES=$(git diff --name-only "$BASE_REF" HEAD | grep -E 'design/.*\.(yaml|yml|md)$' | tr '\n' ',' | sed 's/,$//' || true)
+          fi
+          echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
+          echo "changed_files=$FILES" >> "$GITHUB_OUTPUT"
+          echo "Spec files: ${FILES:-none} (base: $BASE_REF)"
+
+      - name: Set up JDK 21
+        if: steps.specs.outputs.changed_files != ''
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        if: steps.specs.outputs.changed_files != ''
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Checkout design-to-code tool
+        if: steps.specs.outputs.changed_files != ''
+        uses: actions/checkout@v4
+        with:
+          repository: soraiayugulis/design-to-code
+          path: design-to-code-src
+
+      - name: Build pipeline JAR
+        if: steps.specs.outputs.changed_files != ''
+        run: |
+          cd design-to-code-src
+          ./gradlew jar --no-daemon
+          cp build/libs/design-to-code-*.jar "$RUNNER_TEMP/design-to-code.jar"
+
+      - name: Remove tool sources from workspace
+        if: steps.specs.outputs.changed_files != ''
+        run: rm -rf design-to-code-src
+
+      - name: Pull Ollama model
+        if: steps.specs.outputs.changed_files != ''
+        run: docker exec ollama ollama pull "${{ inputs.ollama_model || 'qwen2.5-coder:7b' }}"
+
+      - name: Run design-to-code pipeline
+        if: steps.specs.outputs.changed_files != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          java -jar "$RUNNER_TEMP/design-to-code.jar" \
+            -m "${{ inputs.ollama_model || 'qwen2.5-coder:7b' }}" \
+            -b "${{ steps.specs.outputs.base_ref }}" \
+            --metrics-file "$RUNNER_TEMP/pipeline-metrics.txt" \
+            . "${{ steps.specs.outputs.changed_files }}"
+
+      - name: Publish pipeline metrics
+        if: always() && steps.specs.outputs.changed_files != ''
+        run: |
+          {
+            echo '## Design-to-Code metrics'
+            echo '```'
+            cat "$RUNNER_TEMP/pipeline-metrics.txt" 2>/dev/null || echo 'metrics file not generated'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build reports
+        if: always() && steps.specs.outputs.changed_files != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gate-reports
+          path: app/build/reports/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -36,5 +36,9 @@ class SaveMatchUseCaseTest {
         }
 
         override suspend fun getAll(): List<MatchResult> = emptyList()
+
+        override suspend fun clearAll() {
+            saved.clear()
+        }
     }
 }

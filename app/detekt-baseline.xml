@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>FunctionNaming:AppButton.kt$@Composable fun AppButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, contentColor: Color = AccentYellow )</ID>
+    <ID>FunctionNaming:AppIconButton.kt$@Composable fun AppIconButton( imageVector: ImageVector, contentDescription: String?, onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true )</ID>
+    <ID>FunctionNaming:AppNavigation.kt$@Composable fun AppNavigation(navController: NavHostController = rememberNavController())</ID>
+    <ID>FunctionNaming:AppSmallButton.kt$@Composable fun AppSmallButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true, fontWeight: FontWeight = FontWeight.Normal )</ID>
+    <ID>FunctionNaming:ErrorScreen.kt$@Composable fun ErrorScreen( message: String = "", onHome: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:GameTimerBar.kt$@Composable fun GameTimerBar( remainingSeconds: Int, isWarning: Boolean, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:GuessMapScreen.kt$@Composable fun GuessMapScreen( viewModel: GuessMapViewModel = hiltViewModel(), onSubmit: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:GuessMapScreen.kt$@Composable private fun MapView( guess: Location?, onMapClick: (Location) -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable fun HomeScreen( viewModel: HomeViewModel = hiltViewModel(), onStartGame: () -&gt; Unit = {}, onRanking: () -&gt; Unit = {}, onSettings: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:RankingScreen.kt$@Composable fun RankingScreen( viewModel: RankingViewModel = hiltViewModel() )</ID>
+    <ID>FunctionNaming:RankingScreen.kt$@Composable private fun EmptyRanking()</ID>
+    <ID>FunctionNaming:RankingScreen.kt$@Composable private fun RankingHeader(totalScore: Int)</ID>
+    <ID>FunctionNaming:RankingScreen.kt$@Composable private fun RankingItem(match: RankingMatch)</ID>
+    <ID>FunctionNaming:ResultScreen.kt$@Composable fun ResultScreen( viewModel: ResultViewModel = hiltViewModel(), onHome: () -&gt; Unit = {}, onPlayAgain: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ResultScreen.kt$@Composable private fun DetailDivider()</ID>
+    <ID>FunctionNaming:ResultScreen.kt$@Composable private fun DetailRow(label: String, value: String)</ID>
+    <ID>FunctionNaming:ResultScreen.kt$@Composable private fun ResultMap( target: Location, guess: Location?, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), onBack: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun ClearHistoryDialog( onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun LanguageOption( text: String, selected: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:StreetViewScreen.kt$@Composable fun StreetViewScreen( viewModel: StreetViewViewModel = hiltViewModel(), onGuess: () -&gt; Unit = {}, onFinished: () -&gt; Unit = {}, onHome: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:StreetViewScreen.kt$@Composable private fun StreetViewPanorama( target: Location, onNoCoverage: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SubmitButton.kt$@Composable fun SubmitButton( enabled: Boolean, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun WhereAmITheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
+    <ID>LongMethod:RankingScreen.kt$@Composable private fun RankingItem(match: RankingMatch)</ID>
+    <ID>LongMethod:ResultScreen.kt$@Composable fun ResultScreen( viewModel: ResultViewModel = hiltViewModel(), onHome: () -&gt; Unit = {}, onPlayAgain: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ResultScreen.kt$@Composable private fun ResultMap( target: Location, guess: Location?, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), onBack: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@Composable private fun ClearHistoryDialog( onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>MagicNumber:CalculateCountryBonusUseCase.kt$CalculateCountryBonusUseCase$1000</ID>
+    <ID>MagicNumber:CalculateScoreUseCase.kt$CalculateScoreUseCase$5000</ID>
+    <ID>MagicNumber:Color.kt$0xFF0D47A1</ID>
+    <ID>MagicNumber:Color.kt$0xFF1565C0</ID>
+    <ID>MagicNumber:Color.kt$0xFF1E88E5</ID>
+    <ID>MagicNumber:Color.kt$0xFF29B6F6</ID>
+    <ID>MagicNumber:Color.kt$0xFF7CB342</ID>
+    <ID>MagicNumber:Color.kt$0xFF81D4FA</ID>
+    <ID>MagicNumber:Color.kt$0xFFE3F2FD</ID>
+    <ID>MagicNumber:Color.kt$0xFFE53935</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB300</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:GameSessionManager.kt$GameSessionManager$150</ID>
+    <ID>MagicNumber:GameTimer.kt$GameTimer$1000</ID>
+    <ID>MagicNumber:GameTimer.kt$GameTimer$1000L</ID>
+    <ID>MagicNumber:GameTimerBar.kt$500</ID>
+    <ID>MagicNumber:GameTimerBar.kt$60</ID>
+    <ID>MagicNumber:GuessMapScreen.kt$4f</ID>
+    <ID>MagicNumber:RankingViewModel.kt$RankingViewModel$5</ID>
+    <ID>MagicNumber:ResultScreen.kt$100</ID>
+    <ID>MagicNumber:ResultScreen.kt$5f</ID>
+    <ID>MagicNumber:ResultScreen.kt$6f</ID>
+    <ID>MagicNumber:RetryPolicyImpl.kt$RetryPolicyImpl$3</ID>
+    <ID>MagicNumber:RetryPolicyImpl.kt$RetryPolicyImpl$500L</ID>
+    <ID>MagicNumber:SeedRepositoryImpl.kt$SeedRepositoryImpl$180.0</ID>
+    <ID>MagicNumber:SeedRepositoryImpl.kt$SeedRepositoryImpl$90.0</ID>
+    <ID>MagicNumber:SettingsScreen.kt$0.5f</ID>
+    <ID>MagicNumber:Type.kt$400</ID>
+    <ID>MagicNumber:Type.kt$500</ID>
+    <ID>MagicNumber:Type.kt$600</ID>
+    <ID>MagicNumber:Type.kt$700</ID>
+    <ID>MagicNumber:Type.kt$800</ID>
+    <ID>MatchingDeclarationName:AppNavigation.kt$Routes</ID>
+    <ID>MaxLineLength:ResultScreen.kt$DetailRow(label = stringResource(R.string.result_distance_label), value = "%.1f km".format(result.distanceKm))</ID>
+    <ID>SwallowedException:CountryToContinentDataSource.kt$AssetCountryToContinentDataSource$e: IOException</ID>
+    <ID>SwallowedException:SeedRepositoryImplTest.kt$SeedRepositoryImplTest$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:SeedRepositoryImplTest.kt$SeedRepositoryImplTest$e: IllegalStateException</ID>
+    <ID>TooGenericExceptionCaught:RetryPolicyImpl.kt$RetryPolicyImpl$e: Exception</ID>
+    <ID>UseCheckOrError:RetryPolicyImpl.kt$RetryPolicyImpl$throw lastException ?: IllegalStateException("Retry exhausted")</ID>
+    <ID>UseCheckOrError:SeedRepositoryImpl.kt$SeedRepositoryImpl$throw IllegalStateException("Seed file contains no locations")</ID>
+    <ID>UseCheckOrError:SeedRepositoryImpl.kt$SeedRepositoryImpl$throw IllegalStateException("Seed file could not be parsed")</ID>
+    <ID>UseCheckOrError:SeedRepositoryImpl.kt$SeedRepositoryImpl$throw IllegalStateException("Seed file is empty")</ID>
+  </CurrentIssues>
+</SmellBaseline>
