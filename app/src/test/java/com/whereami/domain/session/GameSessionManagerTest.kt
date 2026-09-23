@@ -139,5 +139,9 @@ class GameSessionManagerTest {
         }
 
         override suspend fun getAll(): List<com.whereami.domain.model.MatchResult> = matches
+
+        override suspend fun clearAll() {
+            matches.clear()
+        }
     }
 }

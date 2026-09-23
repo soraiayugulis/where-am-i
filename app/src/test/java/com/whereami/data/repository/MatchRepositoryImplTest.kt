@@ -67,5 +67,9 @@ class MatchRepositoryImplTest {
         override suspend fun getAll(): List<MatchEntity> = stored
 
         override suspend fun getById(id: Long): MatchEntity? = null
+
+        override suspend fun deleteAll() {
+            stored.clear()
+        }
     }
 }

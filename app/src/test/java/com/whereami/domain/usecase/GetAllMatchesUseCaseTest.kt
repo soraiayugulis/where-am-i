@@ -31,5 +31,6 @@ class GetAllMatchesUseCaseTest {
     private class FakeMatchRepository(private val matches: List<MatchResult>) : MatchRepository {
         override suspend fun save(match: MatchResult) = Unit
         override suspend fun getAll(): List<MatchResult> = matches
+        override suspend fun clearAll() = Unit
     }
 }
