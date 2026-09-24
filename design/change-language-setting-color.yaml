@@ -1,0 +1,37 @@
+feature: settings-selected-language-text-color
+description: >
+  On the Settings screen, the selected language option must render its text in
+  the same navy blue (DarkBlue) used by the unselected option, instead of the
+  current yellow (AccentYellow). Every other selected-state visual stays
+  exactly as it is today.
+target:
+  file: app/src/main/java/com/whereami/presentation/settings/SettingsScreen.kt
+  composable: LanguageOption
+context:
+  screen: Settings screen, Language section (English / Portuguese options)
+  current_selected_state:
+    text_color: AccentYellow (0xFFFFB300)
+    background: DarkBlue.copy(alpha = 0.15f) with RoundedCornerShape(8.dp)
+    font_weight: FontWeight.ExtraBold
+    shadow: white Shadow, offset (0f, 0f), blurRadius 8f
+  current_unselected_state:
+    text_color: DarkBlue (0xFF0D47A1)
+    background: Color.Transparent
+    font_weight: FontWeight.Normal
+  desired_selected_state: identical to current_selected_state, except text_color = DarkBlue
+rules:
+  - id: LANGCOLOR-1
+    when: a language option on the Settings screen is selected
+    then: its text color is DarkBlue, the same navy blue used by the unselected option
+  - id: LANGCOLOR-2
+    when: a language option on the Settings screen is selected
+    then: all other selected-state visuals remain unchanged — the DarkBlue 15% alpha rounded background tint, FontWeight.ExtraBold, and the white text shadow are preserved
+  - id: LANGCOLOR-3
+    when: a language option on the Settings screen is not selected
+    then: its appearance is unchanged (DarkBlue text, FontWeight.Normal, transparent background)
+  - id: LANGCOLOR-4
+    when: the change is implemented
+    then: only the selected text color inside LanguageOption is modified — no other color, component, screen, string resource, or theme token is changed
+constraints:
+  - AccentYellow remains in the theme palette and keeps its other usages (e.g., ClearHistoryDialog); only the LanguageOption selected text color stops using it
+  - The change is a single-file modification in app/src/main/java/com/whereami/presentation/settings/SettingsScreen.kt
